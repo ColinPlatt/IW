@@ -2,7 +2,7 @@
 pragma solidity ^0.8.15;
 
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "src/Cantographs.sol";
+import "src/IW_LOST_LEVELS.sol";
 
 import "src/ITurnstile.sol";
 
@@ -11,12 +11,11 @@ contract Distributor is Ownable {
     uint256 public constant MAX_MINT = 2000;
     uint256 public constant MINT_COST = 200 ether;
 
-    IERC721 public constant CGRPH = IERC721(0x12f73617D48b7aab8FE9f2B3b76C55F1055fAa01);
-    IERC721 public constant IW = IERC721(0x24757E4b5AD64e6b48d78Dc800D45b4061698757);
-
+    IERC721 public immutable CGRPH;
+    IERC721 public immutable IW;
     uint256 public immutable PUBLIC_SALE_OPENING;
     
-    Cantographs public immutable cantoGraphs;  // we can only set this once, if we mess up we need to redeploy and update the NFT contract
+    IW_LOST_LEVELS public immutable lost;  // we can only set this once, if we mess up we need to redeploy and update the NFT contract
     
     // we group the bools to determine if an NFT has minted from both collections to save storage
     struct EARLY_MINT_TRACKER {
@@ -31,11 +30,15 @@ contract Distributor is Ownable {
     uint16 private index;
     
     constructor(
-        address _cantoGraphs
+        address _lost,
+        address _cgrph,
+        address _iw
     ) {
         PUBLIC_SALE_OPENING = block.timestamp + 1 days;
-        cantoGraphs = Cantographs(_cantoGraphs);
-        if(block.chainid == 7700) ITurnstile(0xEcf044C5B4b867CFda001101c617eCd347095B44).assign(cantoGraphs.CSRID());
+        lost = IW_LOST_LEVELS(_lost);
+        CGRPH = IERC721(_cgrph);
+        IW = IERC721(_iw);
+        if(block.chainid == 7700) ITurnstile(0xEcf044C5B4b867CFda001101c617eCd347095B44).assign(lost.CSRID());
     }
 
     // Owner can withdraw CANTO sent to this contract
@@ -69,7 +72,7 @@ contract Distributor is Ownable {
 
         earlyMintedByIds[id].IW_MINTED = true;
 
-        cantoGraphs.mintFromDistributor(msg.sender, _pickPseudoRandomUniqueId(uint160(msg.sender)*id)+1);
+        lost.mintFromDistributor(msg.sender, _pickPseudoRandomUniqueId(uint160(msg.sender)*id)+1);
 
     }
 
@@ -81,7 +84,7 @@ contract Distributor is Ownable {
 
         earlyMintedByIds[id].CGRPH_MINTED = true;
 
-        cantoGraphs.mintFromDistributor(msg.sender, _pickPseudoRandomUniqueId(uint160(msg.sender)*id)+1);
+        lost.mintFromDistributor(msg.sender, _pickPseudoRandomUniqueId(uint160(msg.sender)*id)+1);
 
     }
 
@@ -97,7 +100,7 @@ contract Distributor is Ownable {
 
         for(uint256 i = 0; i<amt; ++i) {
 
-            cantoGraphs.mintFromDistributor(msg.sender, _pickPseudoRandomUniqueId(uint160(msg.sender)*i)+1);
+            lost.mintFromDistributor(msg.sender, _pickPseudoRandomUniqueId(uint160(msg.sender)*i)+1);
         }
 
     }

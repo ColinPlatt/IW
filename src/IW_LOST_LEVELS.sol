@@ -8,7 +8,7 @@ import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "src/ITurnstile.sol";
 
 
-contract Cantographs is ERC721Enumerable, ERC2981, Ownable {
+contract IW_LOST_LEVELS is ERC721Enumerable, ERC2981, Ownable {
     
     uint256 public constant MAX_ID = 2000;
 
@@ -20,8 +20,8 @@ contract Cantographs is ERC721Enumerable, ERC2981, Ownable {
 
     constructor(string memory _setBaseUri) 
         ERC721(
-            "CantoGraphs",
-            "CGRPH"
+            "Inaccessible Worlds: Lost Levels",
+            "LOST"
         ){
             baseUri = _setBaseUri;
             _setDefaultRoyalty(borderLessMoney, uint96(1000));
@@ -29,7 +29,7 @@ contract Cantographs is ERC721Enumerable, ERC2981, Ownable {
         }
 
     modifier onlyDistributor() {
-        require(distributor == _msgSender(), "Cantograph: caller is not the distributor");
+        require(distributor == _msgSender(), "IW_LOST_LEVELS: caller is not the distributor");
         _;
     }
 
@@ -46,7 +46,7 @@ contract Cantographs is ERC721Enumerable, ERC2981, Ownable {
 
     // minting should be called from the distributor contract which assigns an ID and gives it to the caller
     function mintFromDistributor(address to, uint256 id) external onlyDistributor {
-        require(id<=MAX_ID && id != 0, "Cantograph: invalid ID");
+        require(id<=MAX_ID && id != 0, "IW_LOST_LEVELS: invalid ID");
         _mint(to, id);
     }
 
